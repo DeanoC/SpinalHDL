@@ -110,3 +110,111 @@ case class PLLE2_BASE(
   val CLKOUT5  = out Bool
   val PWRDWN = in Bool
 }
+
+/* MMCM provide additional capability beyond normal series 7 PLL
+  ClkOut0 has fractional capability allow incredible fine control
+  see Xilinx UG472 PDF for detailed information
+
+  For most parameters and clocks except 0 (and 4 in cascade mode)
+  see example with PLLE2_BASE
+
+  Basic example for close 21.175 MHz (VGA pixel clock 640x480@60 hz)
+  Fraction example for clkOut0 (source clk = 100 Mhz)
+  CLKOUT0 = (CLKIN1 * clkOut_Mult_Frac) / clkOut[0]_Divide_Frac
+  val mmcm = new MMCME2_BASE(  clkOut_Mult_Frac = 10.625, // 1062.5 MHz
+                               clkOut0_Divide_Frac = 42.25                           
+                            )  //  1062.5 / 42.25 = 25.1479 MHz
+*/
+case class MMCME2_BASE (
+  bandwidth : String = "OPTIMIZED",
+  startUpWait : String = "FALSE",
+  clkIn1_Period : Double = 0.0, // 0.938 to 52.631ns
+  
+  clkOut_Mult_Frac : Double = 0.0, // 2.0 to 64.0 in 0.125 increments
+  
+  divClk_Divide : Integer = 1, // divide all output clocks
+
+  clkOut0_Divide_Frac : Double = 1.0, // 1.0 to 128.0 in 0.125 increments
+  clkOut0_Phase : Double = 0.0,
+  clkOut0_DutyCycle : Double = 0.5,
+  clkOut1_Divide : Int = 1,
+  clkOut1_Phase : Double  = 0.0,
+  clkOut1_DutyCycle : Double = 0.5,
+  clkOut2_Divide : Int = 1,
+  clkOut2_Phase : Double  = 0.0,
+  clkOut2_DutyCycle : Double = 0.5,
+  clkOut3_Divide : Int = 1,
+  clkOut3_Phase : Double  = 0.0,
+  clkOut3_DutyCycle : Double = 0.5,
+  clkOut4_Divide : Int = 1,
+  clkOut4_Phase : Double  = 0.0,
+  clkOut4_DutyCycle : Double = 0.5,
+  clkOut4_Cascade : String = "FALSE", // cascade clkout6 into 6 to give a 16,384 divide
+  clkOut5_Divide : Int = 1,
+  clkOut5_Phase : Double  = 0.0,
+  clkOut5_DutyCycle : Double = 0.5,
+  clkOut6_Divide : Int = 1,
+  clkOut6_Phase : Double  = 0.0,
+  clkOut6_DutyCycle : Double = 0.5
+
+  ) extends BlackBox{
+
+  addGeneric("BANDWIDTH", bandwidth )
+  addGeneric("STARTUP_WAIT", startUpWait )
+  addGeneric("CLKIN1_PERIOD", clkIn1_Period )
+
+  addGeneric("CLKFBOUT_MULT_F", clkOut_Mult_Frac )
+  
+  addGeneric("DIVCLK_DIVIDE", divClk_Divide)
+
+  addGeneric("CLKOUT0_DIVIDE_F", clkOut0_Divide_Frac )
+  addGeneric("CLKOUT0_PHASE", clkOut0_Phase )
+  addGeneric("CLKOUT0_DUTY_CYCLE", clkOut0_DutyCycle )
+
+  addGeneric("CLKOUT1_DIVIDE", clkOut1_Divide )
+  addGeneric("CLKOUT1_PHASE", clkOut1_Phase )
+  addGeneric("CLKOUT1_DUTY_CYCLE", clkOut1_DutyCycle )
+
+  addGeneric("CLKOUT2_DIVIDE", clkOut2_Divide )
+  addGeneric("CLKOUT2_PHASE", clkOut2_Phase )
+  addGeneric("CLKOUT2_DUTY_CYCLE", clkOut2_DutyCycle )
+
+  addGeneric("CLKOUT3_DIVIDE", clkOut3_Divide )
+  addGeneric("CLKOUT3_PHASE", clkOut3_Phase )
+  addGeneric("CLKOUT3_DUTY_CYCLE", clkOut3_DutyCycle )
+
+  addGeneric("CLKOUT4_DIVIDE", clkOut4_Divide )
+  addGeneric("CLKOUT4_PHASE", clkOut3_Phase )
+  addGeneric("CLKOUT4_DUTY_CYCLE", clkOut4_DutyCycle )
+  addGeneric("CLKOUT4_CASCADE", clkOut4_Cascade )
+
+  addGeneric("CLKOUT5_DIVIDE", clkOut5_Divide )
+  addGeneric("CLKOUT5_PHASE", clkOut5_Phase )
+  addGeneric("CLKOUT5_DUTY_CYCLE", clkOut5_DutyCycle )
+
+  addGeneric("CLKOUT6_DIVIDE", clkOut6_Divide )
+  addGeneric("CLKOUT6_PHASE", clkOut6_Phase )
+  addGeneric("CLKOUT6_DUTY_CYCLE", clkOut6_DutyCycle )
+
+  val CLKIN1 = in Bool
+  val CLKFBIN = in Bool
+  val CLKFBOUT = out Bool
+  val CLKFBOUTB = out Bool // inverted
+
+  val RST = in Bool
+  val LOCKED = out Bool
+
+  val CLKOUT0  = out Bool
+  val CLKOUT0B = out Bool // inverted clocks
+  val CLKOUT1  = out Bool
+  val CLKOUT1B = out Bool  // inverted clocks
+  val CLKOUT2  = out Bool
+  val CLKOUT2B = out Bool // inverted clocks
+  val CLKOUT3  = out Bool
+  val CLKOUT3B = out Bool // inverted clocks
+  val CLKOUT4  = out Bool
+  val CLKOUT5  = out Bool
+  val CLKOUT6  = out Bool
+
+  val PWRDWN = in Bool
+}
