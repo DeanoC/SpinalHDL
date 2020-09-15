@@ -148,8 +148,12 @@ class Bundle extends MultiData with Nameable with ValCallbackRec {
   }
 
   def add(ref: Any, name: String) : Unit = valCallbackRec(ref, name)
-  def get(name: String) : Option[(String,Data)] = elementsCache.find( el => el._1 == name)
-
+  def get(name: String) : Option[Data] = {
+    elementsCache.find( el => el._1 == name) match {
+      case None => None
+      case Some(r) => Option(r._2)
+    }
+  }
   override def elements: ArrayBuffer[(String, Data)] = elementsCache
 
   private[core] def rejectOlder = true
