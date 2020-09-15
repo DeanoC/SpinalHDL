@@ -147,6 +147,8 @@ class Bundle extends MultiData with Nameable with ValCallbackRec {
     case ref =>
   }
 
+  def add(ref: Any, name: String) : Unit = valCallbackRec(ref, name)
+  def get(name: String) : Option[(String,Data)] = elementsCache.find( el => el._1 == name)
 
   override def elements: ArrayBuffer[(String, Data)] = elementsCache
 
