@@ -1689,11 +1689,14 @@ class PhaseCompletSwitchCases extends PhaseNetlist{
 
     walkStatements{
       case s: SwitchStatement if s.isFullyCoveredWithoutDefault =>
+/* Deano: This doesn't make sense to me, if I've covered all
+          enumerations so don't need the default fallback that not
+          an error in my eyes...             
         if(s.defaultScope != null && !s.defaultScope.isEmpty){
           PendingError(s"UNREACHABLE DEFAULT STATEMENT on \n" + s.getScalaLocationLong)
         }
         s.defaultScope = s.elements.last.scopeStatement
-        s.elements.remove(s.elements.length-1)
+        s.elements.remove(s.elements.length-1) */
       case _ =>
     }
   }
