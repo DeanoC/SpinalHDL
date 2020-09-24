@@ -388,8 +388,6 @@ case class ASYNC_FIFO(
     val writeClk = in Bool
 
     val reset = in Bool
-    val resetReg = in Bool
-    val regCE = in Bool
   }
 
   val fifo = S7_FIFO( BRAMSize = BRAMSize,
@@ -402,11 +400,11 @@ case class ASYNC_FIFO(
 
   fifo.io.RDEN := io.readEnable
   fifo.io.WREN := io.writeEnable
-  fifo.io.RSTREG := io.resetReg
   fifo.io.RST := io.reset
   fifo.io.RDCLK := io.readClk
   fifo.io.WRCLK := io.writeClk
-  fifo.io.REGCE := io.regCE
+  fifo.io.RSTREG := False // sync only
+  fifo.io.REGCE := False // sync only
   io.full := fifo.io.FULL
   io.empty := fifo.io.EMPTY
   io.almostEmpty := fifo.io.ALMOSTEMPTY
@@ -417,7 +415,6 @@ case class ASYNC_FIFO(
       assert( rw == 4 || rw == 9 || rw == 18)
       fifo.io.DO <> io.readData(0 until rw)
       fifo.io.DI <> io.writeData(0 until rw)
-      fifo.io.DOP := 0
       fifo.io.DIP := 0
     }
     case 36 => {
@@ -430,7 +427,6 @@ case class ASYNC_FIFO(
       {
         fifo.io.DO <> io.readData(0 until 36)
         fifo.io.DI <> io.writeData(0 until 36)
-        fifo.io.DOP := 0
         fifo.io.DIP := 0
       }
     }
