@@ -351,8 +351,8 @@ case class S7_FIFO(
 
     val DO = out Bits( (if(BRAMSize == 18) 32 else 64) bits)
     val DOP = out Bits( (if(BRAMSize == 18) 4 else 8) bits)
-    val WRCOUNT = out Bits(12 bits)
-    val RDCOUNT = out Bits(12 bits)
+    val WRCOUNT = out Bits((if(BRAMSize == 18) 12 else 13) bits)
+    val RDCOUNT = out Bits((if(BRAMSize == 18) 12 else 13) bits)
     val FULL = out Bool
     val EMPTY = out Bool
     val ALMOSTFULL = out Bool
@@ -378,8 +378,8 @@ case class ASYNC_FIFO(
     val empty = out Bool
     val almostFull = out Bool
     val almostEmpty = out Bool
-    val writeCount = out Bits(12 bits)
-    val readCount = out Bits(12 bits)
+    val writeCount = out Bits((if(BRAMSize == 18) 12 else 13) bits)
+    val readCount = out Bits((if(BRAMSize == 18) 12 else 13) bits)
 
     val readEnable = in Bool
     val writeEnable = in Bool
@@ -387,7 +387,7 @@ case class ASYNC_FIFO(
     val readClk = in Bool
     val writeClk = in Bool
 
-    val reset = in Bool
+    val reset = in Bool // reset must be in the slowest clock and be assert for 5 cycles
   }
 
   val fifo = S7_FIFO( BRAMSize = BRAMSize,
@@ -413,8 +413,8 @@ case class ASYNC_FIFO(
   dataWidth match {
     case rw if(rw < 36) => {
       assert( rw == 4 || rw == 9 || rw == 18)
-      fifo.io.DO <> io.readData(0 until rw)
-      fifo.io.DI <> io.writeData(0 until rw)
+      fifo.io.DO.resize(rw) <> io.readData
+      fifo.io.DI <> io.writeData(0 until rw).resize(32)
       fifo.io.DIP := 0
     }
     case 36 => {
@@ -425,8 +425,8 @@ case class ASYNC_FIFO(
         fifo.io.DIP <> io.writeData(32 until 36)
       } else
       {
-        fifo.io.DO <> io.readData(0 until 36)
-        fifo.io.DI <> io.writeData(0 until 36)
+        fifo.io.DO(0 until 36) <> io.readData
+        fifo.io.DI <> io.writeData(0 until 36).resize(64)
         fifo.io.DIP := 0
       }
     }
